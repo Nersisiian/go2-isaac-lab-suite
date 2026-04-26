@@ -1,0 +1,24 @@
+# Main configuration file that ties everything together
+defaults:
+  - task: walk
+  - rl: ppo
+  - _self_
+
+task:
+  name: go2_walk
+  environment:
+    num_envs: 4096
+    episode_length_s: 20.0
+    dt: 0.01
+
+train:
+  max_iterations: 2000
+  save_interval: 100
+  log_interval: 10
+
+wandb:
+  enable: false
+  project: go2_extreme
+  run_name: default_run
+
+device: auto

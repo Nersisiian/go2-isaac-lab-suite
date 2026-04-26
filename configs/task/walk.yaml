@@ -1,0 +1,23 @@
+# @package _group_
+# Task configuration for walking
+
+environment:
+  num_envs: 4096
+  episode_length_s: 20.0
+  dt: 0.01
+  commands:
+    lin_vel_x:
+      low: -0.5
+      high: 1.5
+    lin_vel_y:
+      low: -0.3
+      high: 0.3
+    ang_vel_z:
+      low: -0.5
+      high: 0.5
+  rewards:
+    lin_vel: 1.0
+    ang_vel: 0.5
+    torque: -0.0001
+    alive: 0.05
+    fall: -100.0

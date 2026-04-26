@@ -1,0 +1,14 @@
+# @package _group_
+# Pick and place with a 6-DOF arm attached to Go2
+
+environment:
+  num_envs: 2048
+  episode_length_s: 30.0
+  dt: 0.01
+  arm_dof: 6
+  object: "cube"
+  rewards:
+    grasp: 10.0
+    place: 50.0
+    approach: 1.0
+    effort: -0.001

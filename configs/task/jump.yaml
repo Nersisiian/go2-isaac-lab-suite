@@ -1,0 +1,15 @@
+# @package _group_
+# Jump over an obstacle (height = 0.2 m)
+
+environment:
+  num_envs: 4096
+  episode_length_s: 10.0
+  dt: 0.005
+  terrain:
+    type: "jumping"
+    obstacle_height: 0.2
+  rewards:
+    forward_vel: 1.5
+    jump_height: 50.0
+    feet_air_time: 2.0
+    torque: -0.0005

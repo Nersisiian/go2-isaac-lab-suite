@@ -1,0 +1,18 @@
+# @package _group_
+# PPO algorithm hyperparameters
+
+algorithm:
+  learning_rate: 0.001
+  batch_size: 16384
+  clip_range: 0.2
+  entropy_coef: 0.01
+  value_loss_coef: 1.0
+  num_learning_epochs: 5
+  num_mini_batches: 4
+  gamma: 0.99
+  lam: 0.95
+
+policy:
+  hidden_dims: [512, 256, 128]
+  activation: "elu"
+  init_noise_std: 1.0
