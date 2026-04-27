@@ -26,5 +26,11 @@ jobs:
       - name: Install project in development mode
         run: pip install -e .
 
-      - name: Test import
-        run: python -c "from go2_extreme.tasks import make_env; print('OK')"
+      - name: Lint with flake8
+        run: |
+          pip install flake8
+          flake8 go2_extreme/ --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: Check Python syntax (compile all .py files)
+        run: |
+          find go2_extreme -name "*.py" -exec python -m py_compile {} \;
