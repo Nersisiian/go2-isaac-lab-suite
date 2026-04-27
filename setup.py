@@ -12,7 +12,6 @@ setup(
         "gymnasium",
         "hydra-core",
         "omegaconf",
-        "rsl-rl",
     ],
     classifiers=[
         "Programming Language :: Python :: 3.10",
