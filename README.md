@@ -1,101 +1,211 @@
-# 🦾 Go2 Extreme RL Suite
+# 🦾 GO2 Isaac Lab Suite
 
-**Самая мощная среда обучения робота Unitree Go2 на Isaac Lab**
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
+[![Build and Test](https://github.com/Nersisiian/go2-isaac-lab-suite/actions/workflows/build.yml/badge.svg)](https://github.com/Nersisiian/go2-isaac-lab-suite/actions/workflows/build.yml)
+[![Check Links](https://github.com/Nersisiian/go2-isaac-lab-suite/actions/workflows/check-links.yml/badge.svg)](https://github.com/Nersisiian/go2-isaac-lab-suite/actions/workflows/check-links.yml)
 
-## Возможности
-- ✅ Ходьба и бег по пересечённой местности
-- ✅ Прыжки в длину и высоту
-- ✅ Кувырок назад (backflip)
-- ✅ Самовосстановление после падения
-- ✅ Манипуляции с добавленным роботизированным манипулятором
-- ✅ Мульти-GPU обучение (до 16384 параллельных сред)
+**Продвинутая система для разработки и обучения AI-агентов для четвероногого робота Go2**  
+на базе NVIDIA Isaac Lab (GPU-ускоренная физика, массово-параллельное RL).
 
-## Установка за 5 минут
+## 🎯 Для кого
+
+- 🤖 **Robotics engineers** – отработка алгоритмов управления в симуляции  
+- 🧠 **ML / RL engineers** – масштабируемое обучение с подкреплением  
+- 🔬 **Research проекты** – бенчмаркинг, доменная рандомизация  
+- 🚀 **Стартап в AI + Robotics** – быстрый прототип Sim2Real  
+
+## 🔥 Особенности
+
+- 🐕 **Четвероногий робот Go2** (12 DOF, IMU, контактные сенсоры)  
+- ⚙️ **Низкоуровневый контроль суставов** (PD, позиция, усилие)  
+- 🧠 **Среды, готовые для RL** (награды, наблюдения, команды)  
+- 🎯 **Интеграция сенсоров** (IMU, состояние, опциональный LiDAR)  
+- 🚀 **Физика с ускорением на GPU** (тысячи параллельных симуляций)  
+- 🧪 **Архитектура исследовательского уровня** (модульные конфиги, Hydra)  
+- ✅ **CI/CD на GitHub Actions** (линтер, проверка ссылок, тесты импортов)  
+
+## 🏗️ Структура проекта
+```
+go2-isaac-lab-suite/
+├── .github/workflows/ # CI/CD (build, check-links)
+├── configs/ # Hydra конфиги (задачи, алгоритмы)
+├── go2_extreme/ # Основной код
+│ ├── robots/ # Определение роботов (Go2, с манипулятором)
+│ ├── tasks/ # Сценарии: ходьба, прыжки, кувырок, манипуляция
+│ ├── rewards/ # Кастомные функции награды
+│ └── utils/ # Вспомогательные функции
+├── policies/ # Сохранённые модели (.pt)
+├── scripts/ # Скрипты установки и загрузки моделей
+├── train.py # Запуск обучения
+├── play.py # Визуализация обученной политики
+├── evaluate.py # Оценка модели на эпизодах
+├── Dockerfile # Воспроизводимый контейнер
+├── requirements.txt # Python зависимости (для CI, без Isaac Lab)
+└── README.md
+
+```
+## ⚡ Tech Stack
+
+- Python 3.10+  
+- **NVIDIA Isaac Lab** (основной фреймворк)  
+- Isaac Sim / PhysX (GPU-физика)  
+- PyTorch, Hydra, Omegaconf  
+- Reinforcement Learning (PPO, SAC – через RSL-RL)  
+- ROS2 (опционально, для Sim2Real)  
+- CUDA / GPU (обязательно для обучения)  
+
+## 🚀 Установка
+
+### Требования
+- NVIDIA GPU с **8+ ГБ VRAM** (RTX 3060 или лучше)  
+- **CUDA 11.8+** и драйверы  
+- **Docker** (рекомендуется) или чистая Ubuntu 20.04/22.04  
+
+### Быстрый старт (локально)
 
 ```bash
-# 1. Клонируем репозиторий
-git clone https://github.com/yourname/go2_extreme_rl_suite.git
-cd go2_extreme_rl_suite
+# 1. Клонируйте репозиторий
+git clone https://github.com/Nersisiian/go2-isaac-lab-suite.git
+cd go2-isaac-lab-suite
 
-# 2. Устанавливаем Isaac Lab (если ещё не установлен)
-bash scripts/setup_isaac_lab.sh
+# 2. Создайте conda окружение
+conda create -n go2 python=3.10 -y
+conda activate go2
 
-# 3. Устанавливаем этот проект как расширение
+# 3. Установите зависимости (без Isaac Lab — он ставится отдельно)
+pip install -r requirements.txt
+
+# 4. Установите сам проект в режиме разработки
 pip install -e .
+```
+Установка Isaac Lab (обязательно для обучения)
+Следуйте официальной инструкции NVIDIA:
+Isaac Lab Installation Guide
 
-# 4. Скачиваем модель Go2
-bash scripts/download_go2_model.sh
+Кратко:
+```
+# Скачайте Isaac Sim через Omniverse Launcher или используйте Docker
+docker pull nvcr.io/nvidia/isaac-sim:2024.1.0
+# Или клонируйте репозиторий Isaac Lab
+git clone https://github.com/isaac-sim/IsaacLab.git
+cd IsaacLab
+./isaaclab.sh --install
+
+```
+После установки Isaac Lab не забудьте связать расширение:
+```
+# Из корня IsaacLab
+./isaaclab.sh -p -m pip install -e /path/to/go2-isaac-lab-suite
+```
+▶️ Использование
 Запуск обучения
-bash
-# Ходьба
+```
+# Ходьба по ровной поверхности
 python train.py --task go2_walk
 
-# Бег со скоростью 2 м/с
+# Бег с целевой скоростью 2 м/с
 python train.py --task go2_run --config configs/task/run.yaml
 
-# Прыжки
+# Прыжки через препятствие
 python train.py --task go2_jump
 
-# Кувырок назад
+# Кувырок назад (backflip)
 python train.py --task go2_backflip --num_envs 4096
 
-# Манипуляции
-python train.py --task go2_manipulate --config configs/task/manipulate.yaml
-
-# Обучение с визуальными сенсорами (RGBD)
-python train.py --task go2_walk --enable_cameras
+# Манипуляция с arm (если добавлен)
+python train.py --task go2_manipulate
+```
 Визуализация обученной политики
-bash
+```
 python play.py --checkpoint policies/go2_walk_final.pt --rendering
-Результаты
-Задача	Средняя награда	Время обучения (A100)	Sim2Real
-Ходьба	850 ± 50	1.5 часа	✅ Да
-Бег	720 ± 60	2 часа	✅ Да
-Прыжок	1200 ± 80	3 часа	🧪 Тест
-Кувырок	2500 ± 150	5 часов	🧪 Тест
-Структура наград (пример для кувырка)
-+1000 за полный переворот (roll > 300°)
+```
+Оценка производительности
+```
+python evaluate.py --checkpoint policies/go2_walk_final.pt --num_episodes 100
 
-+10 * velocity_x за движение вперёд
-
--0.1 * torque^2 за энергоэффективность
-
--500 за падение на бок
-
-
----
-
-### 2. **requirements.txt**
-isaac-lab>=2024.1.0
-torch>=2.0.0
-hydra-core>=1.3.0
-omegaconf>=2.3.0
-wandb>=0.15.0
-gymnasium>=0.29.0
-numpy>=1.24
-pyyaml
-opencv-python
-
-text
+```
+🧪 Задачи (Tasks)
+```
+Задача	Описание	Статус
+🐾 Locomotion	Ходьба, бег с переменной скоростью	✅ Реализовано
+🧍 Balance	Удержание равновесия на нестабильной поверхности	🧪 Прототип
+🎯 Navigation	Следование за путём с избеганием препятствий	📋 В планах
+🧠 RL training	Готовые среды для PPO/SAC	✅ Готово
+🦘 Jump & Backflip	Акробатические элементы	✅ Конфиги есть
+🦾 Manipulation	Pick & place с манипулятором	⚙️ Частично
+```
 
 ---
 
-### 3. **Dockerfile** (воспроизводимая среда)
+📊 Сенсоры и наблюдения
+IMU (гироскоп, акселерометр)
 
-```dockerfile
-FROM nvcr.io/nvidia/isaac-lab:2024.1.0
+Положения и скорости всех суставов
 
-WORKDIR /workspace
+Контакты стоп с землёй
 
-# Копируем проект
-COPY . /workspace/go2_extreme_rl_suite
+Команды желаемой скорости
 
-# Устанавливаем зависимости
-RUN apt-get update && apt-get install -y libgl1-mesa-glx libglib2.0-0
-RUN pip install -r /workspace/go2_extreme_rl_suite/requirements.txt
+(Опционально) LiDAR, RGBD камера
 
-# Устанавливаем наш проект
-RUN pip install -e /workspace/go2_extreme_rl_suite
+---
 
-# Точка входа для тренировок
-ENTRYPOINT ["python", "train.py"]
+🧠 Обучение с подкреплением
+Алгоритмы: PPO, SAC (через RSL-RL)
+
+Многопоточность: до 16384 параллельных сред на одном GPU
+
+Domain randomization: изменение физики, шумы сенсоров
+
+Sim2Real: политики проверены на переносимость (документация)
+
+---
+
+📸 Демо
+Здесь будут гифки с ходьбой, кувырком и т.д.
+(Вы можете добавить свои после обучения)
+
+---
+
+🗺️ Roadmap
+Базовая ходьба и бег
+
+Конфигурация для прыжков
+
+Конфигурация для кувырка
+
+Террейновая рандомизация (пересечённая местность)
+
+Обучение с камерой (vision-based RL)
+
+Sim2Real деплой на реальном Go2
+
+Многоагентное обучение (стайная локомоция)
+
+---
+
+🤝 Как внести вклад
+Приветствуются Pull Requests.
+Если вы нашли баг или хотите предложить улучшение – создайте Issue.
+
+---
+
+📜 Лицензия
+MIT License – свободно для академического и коммерческого использования.
+
+---
+
+⭐ Поддержка
+Если вам нравится проект – поставьте звезду на GitHub. Это вдохновляет нас на дальнейшее развитие.
+
+---
+
+👨‍💻 Автор
+Grish – AI/ML Engineer
+
+GitHub: @Nersisiian
+
+Специализация: Robotics, Reinforcement Learning, System Design
+
+✨ Сделано с помощью Isaac Lab и ❤️ для сообщества робототехники.
