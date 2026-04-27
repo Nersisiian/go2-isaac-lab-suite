@@ -209,3 +209,5 @@ GitHub: @Nersisiian
 Специализация: Robotics, Reinforcement Learning, System Design
 
 ✨ Сделано с помощью Isaac Lab и ❤️ для сообщества робототехники.
+
+![walking demo](assets/demo_walk.gif)
