@@ -1,0 +1,22 @@
+﻿name: Trivy Docker Scan
+on:
+  push:
+    paths: ['Dockerfile']
+  pull_request:
+    paths: ['Dockerfile']
+jobs:
+  trivy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t go2-extreme:latest .
+      - uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'go2-extreme:latest'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+      - uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'

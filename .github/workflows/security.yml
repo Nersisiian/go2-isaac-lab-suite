@@ -1,0 +1,19 @@
+﻿name: Security Scan (Bandit & Safety)
+
+on: [push, pull_request]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: pip install bandit safety
+      - run: bandit -r go2_extreme/ -f json -o bandit_report.json || true
+      - run: safety check -r requirements.txt --full-report
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bandit-report
+          path: bandit_report.json
