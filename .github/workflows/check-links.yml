@@ -12,7 +12,7 @@ jobs:
   check-links:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: lycheeverse/lychee-action@v2
         with:
           args: --verbose --no-progress --cache --max-cache-age 1d '**/*.md'
