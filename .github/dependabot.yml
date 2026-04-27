@@ -4,14 +4,20 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    labels: ["dependencies", "security"]
+    labels:
+      - "dependencies"
+      - "security"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-    labels: ["ci", "security"]
+    labels:
+      - "ci"
+      - "security"
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
-    labels: ["docker", "security"]
+    labels:
+      - "docker"
+      - "security"
