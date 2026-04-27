@@ -1,6 +1,3 @@
-# Copyright (c) 2022-2026, The Isaac Lab Project Developers
-# SPDX-License-Identifier: BSD-3-Clause
-
 name: Check Documentation Links
 
 on:
@@ -20,7 +17,7 @@ on:
       - '.github/workflows/check-links.yml'
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * 0'  # Every Sunday at midnight UTC
+    - cron: '0 0 * * 0'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -51,7 +48,6 @@ jobs:
             --no-progress
             --cache
             --max-cache-age 1d
-            --fail-if-empty false
             --exclude-path './docs/_build'
             --exclude-path './apps/warp-*'
             --exclude-path './logs'
@@ -77,6 +73,7 @@ jobs:
             '*.md' '**/*.md' 'docs/**/*.rst' 'docs/**/*.html'
           output: ./lychee-output.md
           fail: true
+          failIfEmpty: false
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Print results to logs
@@ -89,7 +86,6 @@ jobs:
             cat ./lychee-output.md
             echo ""
             echo "========================================"
-            # Also add to GitHub step summary for easy viewing
             echo "## Link Checker Results" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             cat ./lychee-output.md >> $GITHUB_STEP_SUMMARY
