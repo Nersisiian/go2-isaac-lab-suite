@@ -1,19 +1,31 @@
 ﻿documentation:
   - changed-files:
-    - any-glob-to-any-file: ['**/*.md', 'docs/**', 'mkdocs.yml']
+    - any-glob-to-any-file:
+      - '**/*.md'
+      - 'docs/**'
+      - 'mkdocs.yml'
 
 workflow:
   - changed-files:
-    - any-glob-to-any-file: ['.github/workflows/*.yml']
+    - any-glob-to-any-file:
+      - '.github/workflows/*.yml'
 
 core:
   - changed-files:
-    - any-glob-to-any-file: ['go2_extreme/**', 'configs/**', 'train.py', 'play.py', 'evaluate.py']
+    - any-glob-to-any-file:
+      - 'go2_extreme/**'
+      - 'configs/**'
+      - 'train.py'
+      - 'play.py'
+      - 'evaluate.py'
 
 scripts:
   - changed-files:
-    - any-glob-to-any-file: ['scripts/**']
+    - any-glob-to-any-file:
+      - 'scripts/**'
 
 docker:
   - changed-files:
-    - any-glob-to-any-file: ['Dockerfile', '.dockerignore']
+    - any-glob-to-any-file:
+      - 'Dockerfile'
+      - '.dockerignore'
