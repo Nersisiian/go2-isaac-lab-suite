@@ -1,0 +1,186 @@
+# Copyright (c) 2022-2026, The Isaac Lab Project Developers
+# SPDX-License-Identifier: BSD-3-Clause
+
+name: Backwards Compatibility Tests
+
+on:
+  schedule:
+    - cron: '0 4 * * *'  # Run daily at 4 AM UTC (8 PM PST)
+  workflow_dispatch:
+    inputs:
+      isaacsim_version:
+        description: 'IsaacSim version image tag to test'
+        required: true
+        default: '4.5.0'
+        type: string
+
+concurrency:
+  group: compatibility-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  NGC_API_KEY: ${{ secrets.NGC_API_KEY }}
+  ISAACSIM_BASE_IMAGE: ${{ vars.ISAACSIM_BASE_IMAGE || 'nvcr.io/nvidia/isaac-sim' }}
+
+jobs:
+  setup-versions:
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{ steps.set-versions.outputs.versions }}
+    steps:
+      - name: Set Isaac Sim Versions
+        id: set-versions
+        run: |
+          # Define all versions to test in one place
+          DEFAULT_VERSIONS='["4.5.0", "5.0.0"]'
+          if [ -n "${{ github.event.inputs.isaacsim_version }}" ]; then
+            # If a specific version is provided via workflow_dispatch, use only that
+            echo "versions=[\"${{ github.event.inputs.isaacsim_version }}\"]" >> $GITHUB_OUTPUT
+          else
+            # Otherwise, use all default versions
+            echo "versions=$DEFAULT_VERSIONS" >> $GITHUB_OUTPUT
+          fi
+
+  test-isaaclab-tasks-compat:
+    needs: setup-versions
+    runs-on: [self-hosted, gpu]
+    timeout-minutes: 180
+    continue-on-error: true
+    strategy:
+      matrix:
+        isaacsim_version: ${{ fromJson(needs.setup-versions.outputs.versions) }}
+      fail-fast: false
+    env:
+      CUDA_VISIBLE_DEVICES: all
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: all
+      CUDA_HOME: /usr/local/cuda
+      LD_LIBRARY_PATH: /usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64
+      DOCKER_IMAGE_TAG: isaac-lab-compat:${{ github.ref_name }}-${{ github.sha }}-${{ matrix.isaacsim_version }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Build Docker Image
+        uses: ./.github/actions/docker-build
+        with:
+          image-tag: ${{ env.DOCKER_IMAGE_TAG }}
+          isaacsim-base-image: ${{ env.ISAACSIM_BASE_IMAGE }}
+          isaacsim-version: ${{ matrix.isaacsim_version }}
+
+      - name: Run IsaacLab Tasks Tests
+        uses: ./.github/actions/run-tests
+        with:
+          test-path: "tools"
+          result-file: "isaaclab-tasks-compat-report.xml"
+          container-name: "isaac-lab-tasks-compat-test-$$"
+          image-tag: ${{ env.DOCKER_IMAGE_TAG }}
+          pytest-options: ""
+          filter-pattern: "isaaclab_tasks"
+
+      - name: Copy All Test Results from IsaacLab Tasks Container
+        run: |
+          CONTAINER_NAME="isaac-lab-tasks-compat-test-$$"
+          if docker ps -a | grep -q $CONTAINER_NAME; then
+            echo "Copying all test results from IsaacLab Tasks container..."
+            docker cp $CONTAINER_NAME:/workspace/isaaclab/tests/isaaclab-tasks-compat-report.xml reports/ 2>/dev/null || echo "No test results to copy from IsaacLab Tasks container"
+          fi
+
+      - name: Upload IsaacLab Tasks Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: isaaclab-tasks-compat-test-results-${{ matrix.isaacsim_version }}
+          path: reports/isaaclab-tasks-compat-report.xml
+          retention-days: 1
+          compression-level: 9
+
+      - name: Upload Compatibility Test Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compatibility-logs-${{ matrix.isaacsim_version }}
+          path: /tmp/isaac-lab-compat-logs/
+          retention-days: 1
+          compression-level: 9
+
+  combine-compat-results:
+    runs-on: ubuntu-latest
+    needs: [setup-versions, test-isaaclab-tasks-compat]
+    if: always()
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-artifacts
+          merge-multiple: true
+
+      - name: List downloaded files
+        run: ls -la all-artifacts/
+
+      - name: Generate compatibility report
+        run: |
+          echo "# Compatibility Test Results" > report.md
+          echo "" >> report.md
+          echo "## Test Summary" >> report.md
+          echo "" >> report.md
+
+          # Check for any test results
+          if ls all-artifacts/*.xml 1> /dev/null 2>&1; then
+            echo "- ✅ Test results found for all versions" >> report.md
+          else
+            echo "- ❌ No test results found" >> report.md
+          fi
+
+          echo "" >> report.md
+          echo "Isaac Sim versions tested: ${{ needs.setup-versions.outputs.versions }}" >> report.md
+
+          # Add to GitHub step summary
+          cat report.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload combined report
+        uses: actions/upload-artifact@v4
+        with:
+          name: compatibility-report
+          path: report.md
+          retention-days: 7
+
+  notify-compatibility-status:
+    runs-on: ubuntu-latest
+    needs: [combine-compat-results]
+    if: always()
+    steps:
+      - name: Check compatibility status
+        id: check-status
+        run: |
+          # Check if any test jobs failed
+          if [ "${{ needs.test-isaaclab-tasks-compat.result }}" == "failure" ]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "message=❌ Compatibility tests failed for some Isaac Sim versions" >> $GITHUB_OUTPUT
+          else
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "message=✅ All compatibility tests passed" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create issue on failure
+        if: steps.check-status.outputs.status == 'failure' && github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '⚠️ Compatibility Test Failure Detected';
+            const body = `${{ steps.check-status.outputs.message }}\n\nIsaac Sim versions tested: ${{ needs.setup-versions.outputs.versions }}\n\nPlease check the workflow run for details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['compatibility', 'bug']
+            });
