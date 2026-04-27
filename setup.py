@@ -1,4 +1,4 @@
-from setuptools import find_packages, setup
+﻿from setuptools import find_packages, setup
 
 setup(
     name="go2_extreme",
@@ -8,10 +8,10 @@ setup(
     author_email="your.email@example.com",
     packages=find_packages(),
     install_requires=[
-        "isaac-sim",
         "torch",
         "gymnasium",
         "hydra-core",
+        "omegaconf",
         "rsl-rl",
     ],
     classifiers=[
