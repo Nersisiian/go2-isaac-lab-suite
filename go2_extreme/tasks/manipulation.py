@@ -1,3 +1,4 @@
+from isaaclab.managers import RewardTermCfg
 from .locomotion import Go2WalkEnvCfg
 from ..robots.go2_manipulator import Go2ManipulatorRobot
 
