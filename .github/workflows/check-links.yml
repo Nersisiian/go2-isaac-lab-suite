@@ -51,6 +51,7 @@ jobs:
             --no-progress
             --cache
             --max-cache-age 1d
+            --fail-if-empty false
             --exclude-path './docs/_build'
             --exclude-path './apps/warp-*'
             --exclude-path './logs'
