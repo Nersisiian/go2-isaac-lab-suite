@@ -1,32 +1,19 @@
-# .github/labeler.yml
-documentation:
-- changed-files:
-  - any-glob-to-any-file:
-    - '**/*.md'
-    - 'docs/**'
-    - 'mkdocs.yml'
+﻿documentation:
+  - changed-files:
+    - any-glob-to-any-file: ['**/*.md', 'docs/**', 'mkdocs.yml']
 
 workflow:
-- changed-files:
-  - any-glob-to-any-file:
-    - '.github/workflows/*.yml'
+  - changed-files:
+    - any-glob-to-any-file: ['.github/workflows/*.yml']
 
 core:
-- changed-files:
-  - any-glob-to-any-file:
-    - 'go2_extreme/**'
-    - 'configs/**'
-    - 'train.py'
-    - 'play.py'
-    - 'evaluate.py'
+  - changed-files:
+    - any-glob-to-any-file: ['go2_extreme/**', 'configs/**', 'train.py', 'play.py', 'evaluate.py']
 
 scripts:
-- changed-files:
-  - any-glob-to-any-file:
-    - 'scripts/**'
+  - changed-files:
+    - any-glob-to-any-file: ['scripts/**']
 
 docker:
-- changed-files:
-  - any-glob-to-any-file:
-    - 'Dockerfile'
-    - '.dockerignore'
+  - changed-files:
+    - any-glob-to-any-file: ['Dockerfile', '.dockerignore']
