@@ -1,23 +1,32 @@
 version: 2
 updates:
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "dependencies"
-      - "security"
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "ci"
-      - "security"
-  - package-ecosystem: "docker"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "docker"
-      - "security"
+
+package-ecosystem: "pip"
+directory: "/"
+schedule:
+interval: "weekly"
+labels:
+
+"dependencies"
+
+"security"
+
+package-ecosystem: "github-actions"
+directory: "/"
+schedule:
+interval: "weekly"
+labels:
+
+"ci"
+
+"security"
+
+package-ecosystem: "docker"
+directory: "/"
+schedule:
+interval: "weekly"
+labels:
+
+"docker"
+
+"security"
