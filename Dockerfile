@@ -1,26 +1,12 @@
-# Use Isaac Lab base image (NVIDIA official)
-FROM nvcr.io/nvidia/isaac-lab:2024.1.0
+﻿FROM nvidia/cuda:12.2.0-devel-ubuntu22.04
 
-WORKDIR /workspace
-
-# Copy the extension source
-COPY . /workspace/go2_extreme_rl_suite
-
-# Install system dependencies (for GUI rendering)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgomp1 \
+RUN apt-get update && apt-get install -y \
+    python3.10 python3-pip git wget \
+    libgl1-mesa-glx libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r /workspace/go2_extreme_rl_suite/requirements.txt
+WORKDIR /app
+COPY . .
+RUN pip3 install --no-cache-dir -e .
 
-# Install our extension in editable mode
-RUN pip install -e /workspace/go2_extreme_rl_suite
-
-# Default entrypoint: train script
-ENTRYPOINT ["python", "/workspace/go2_extreme_rl_suite/train.py"]
+ENTRYPOINT ["python3", "train.py"]
