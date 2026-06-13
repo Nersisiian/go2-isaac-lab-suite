@@ -1,4 +1,4 @@
-﻿name: Security Scan (Bandit & Safety)
+name: Security Scan (Bandit & Safety)
 
 on: [push, pull_request]
 
@@ -13,7 +13,7 @@ jobs:
       - run: pip install bandit safety
       - run: bandit -r go2_extreme/ -f json -o bandit_report.json || true
       - run: safety check -r requirements.txt --full-report
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: bandit-report
           path: bandit_report.json
